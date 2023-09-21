@@ -11,3 +11,45 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+#dataTable {
+  border-collapse: collapse;
+  width: 100%;
+  /* border: 1px solid black; */
+  /* background-color: rgb(223, 212, 62); */
+}
+
+.table-scroll{
+  display: block !important;
+  overflow-x: auto !important;
+}
+
+th,
+td {
+  border-collapse: collapse;
+  border: 1px solid black;
+
+  
+}
+h2 {
+  display: flex;
+  justify-content: center;
+}
+.table1 td {
+  border: none;
+}
+ 
+body {
+  background-image: url(bg2.avif);
+  background-repeat: no-repeat;
+  background-attachment: fixed;  
+  background-size: cover;
+}
+#Submit,#reset{
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#clear-Filter{
+  font-size: medium;
+  font-weight:bold;
+  border: 2px solid ;
+}
