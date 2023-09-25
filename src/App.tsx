@@ -1,44 +1,27 @@
-// import React from 'react';
 import "./App.css";
 import React, { useState, ChangeEvent, FormEvent } from "react";
+import OutputTable, { inputData } from "./outputtable";
 
-import OutputTable from "./outputtable";
-export interface inputData {
-  fname: string;
-  mail: string;
-  number: string;
-  website: string;
-  contactName: string;
-  contactPhone: string;
-  contactMail: string;
-  notes: string;
-  type: string;
-  category: string;
-  percentage: number;
-  activeFrom: string;
-  // Logo:image;
-  criticalAccount: string;
-  paymentOptions: string;
-}
-
-const Multiple = () => {
+const initialFormData: inputData = {
+  fname: "",
+  mail: "",
+  number: "",
+  website: "",
+  contactName: "",
+  contactPhone: "",
+  contactMail: "",
+  notes: "",
+  type: "",
+  category: "",
+  percentage: 0,
+  activeFrom: "",
+  criticalAccount: "",
+  paymentOptions: "",
+};
+const Multiple: React.FC = () => {
   const [submittedData, setSubmittedData] = useState<inputData[]>([]);
-  const [formData, setformData] = useState<inputData>({
-    fname: "",
-    mail: "",
-    number: "",
-    website: "",
-    contactName: "",
-    contactPhone: "",
-    contactMail: "",
-    notes: "",
-    type: "",
-    category: "",
-    percentage: 0,
-    activeFrom: "",
-    criticalAccount: "",
-    paymentOptions: "",
-  });
+  const [formData, setformData] = useState<inputData>(initialFormData);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
   const handleInputChange = (
     event: ChangeEvent<
@@ -51,25 +34,27 @@ const Multiple = () => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmittedData([...submittedData, formData]);
-    setformData({
-      fname: "",
-      mail: "",
-      number: "",
-      website: "",
-      contactName: "",
-      contactPhone: "",
-      contactMail: "",
-      notes: "",
-      type: "",
-      category: "",
-      percentage: 0,
-      activeFrom: "",
-      criticalAccount: "",
-      paymentOptions: "",
-    });
+    if (editingIndex === null) {
+      setSubmittedData([...submittedData, formData]);
+    } else {
+      const updatedDataList = [...submittedData];
+      updatedDataList[editingIndex] = formData;
+      setSubmittedData(updatedDataList);
+      setEditingIndex(null);
+    }
+    setformData(initialFormData);
   };
-  
+  const handleEdit = (data: inputData, index: number) => {
+    setformData(data);
+    setEditingIndex(index);
+  };
+
+  const handleDelete = (index: number) => {
+    const updatedData = [...submittedData];
+    updatedData.splice(index, 1);
+    setSubmittedData(updatedData);
+  };
+
   return (
     <div>
       <h2>Merchant Form</h2>
@@ -121,7 +106,6 @@ const Multiple = () => {
                 value={formData.number}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -138,7 +122,6 @@ const Multiple = () => {
                 value={formData.website}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -155,7 +138,6 @@ const Multiple = () => {
                 value={formData.contactName}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -173,7 +155,6 @@ const Multiple = () => {
                 value={formData.contactPhone}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -190,7 +171,6 @@ const Multiple = () => {
                 value={formData.contactMail}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -208,7 +188,6 @@ const Multiple = () => {
                 value={formData.notes}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -216,7 +195,6 @@ const Multiple = () => {
               <label htmlFor="text" className="type">
                 <b>Type:</b>
               </label>
-              <br />
             </td>
             <td>
               <input
@@ -228,7 +206,6 @@ const Multiple = () => {
                 onChange={handleInputChange}
               />
               <label htmlFor="text">Small Business</label>
-              <br />
               <input
                 type="radio"
                 id="type-variety"
@@ -238,7 +215,6 @@ const Multiple = () => {
                 onChange={handleInputChange}
               />
               <label htmlFor="text">Enterprise</label>
-              <br />
               <input
                 type="radio"
                 id="type-variety"
@@ -248,7 +224,6 @@ const Multiple = () => {
                 onChange={handleInputChange}
               />
               <label htmlFor="text">Entrepreneur</label>
-              <br />
             </td>
           </tr>
           <tr>
@@ -265,14 +240,12 @@ const Multiple = () => {
                 value={formData.category}
                 onChange={handleInputChange}
               >
-                <br />
                 <option value="Clothes">Clothes</option>
                 <option value="Toys">Toys</option>
                 <option value="Groceries">Groceries</option>
                 <option value="Electronics">Electronics</option>
                 <option value="Digital">Digital</option>
               </select>
-              <br />
             </td>
           </tr>
           <tr>
@@ -291,7 +264,6 @@ const Multiple = () => {
                 value={formData.percentage}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -308,7 +280,6 @@ const Multiple = () => {
                 value={formData.activeFrom}
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -324,7 +295,6 @@ const Multiple = () => {
                 name="Logo"
                 onChange={handleInputChange}
               />
-              <br />
             </td>
           </tr>
           <tr>
@@ -352,7 +322,6 @@ const Multiple = () => {
                 onChange={handleInputChange}
               />
               <label>NO</label>
-              <br />
               <sup>*</sup>If YES, we can provide extra care in case of any
               queries.
             </td>
@@ -362,7 +331,6 @@ const Multiple = () => {
               <label>
                 <b>Payment options:</b>
               </label>
-              <br />
             </td>
             <td>
               <input
@@ -374,7 +342,7 @@ const Multiple = () => {
                 onChange={handleInputChange}
               />
               <label>Cash on delivery</label>
-              <br />
+
               <input
                 type="radio"
                 id="online"
@@ -384,7 +352,7 @@ const Multiple = () => {
                 onChange={handleInputChange}
               />
               <label>UPI</label>
-              <br />
+
               <input
                 type="radio"
                 id="card"
@@ -394,7 +362,6 @@ const Multiple = () => {
                 onChange={handleInputChange}
               />
               <label>Card payment</label>
-              <br />
             </td>
           </tr>
           <tr />
@@ -410,8 +377,14 @@ const Multiple = () => {
           </tr>
         </table>
       </form>
-      <OutputTable submittedData={submittedData} setSubmittedData = {setSubmittedData} />
+      <OutputTable
+        submittedData={submittedData}
+        setSubmittedData={setSubmittedData}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </div>
   );
 };
+
 export default Multiple;
