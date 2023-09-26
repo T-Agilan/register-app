@@ -1,7 +1,6 @@
 import "./App.css";
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import OutputTable, { inputData } from "./outputtable";
-
 const initialFormData: inputData = {
   fname: "",
   mail: "",
@@ -22,7 +21,8 @@ const Multiple: React.FC = () => {
   const [submittedData, setSubmittedData] = useState<inputData[]>([]);
   const [formData, setformData] = useState<inputData>(initialFormData);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
+  const [filterType, setFilterType] = useState<string | null>(null);
+  const [filteredData, setFilteredData] = useState<inputData[]>([]);
   const handleInputChange = (
     event: ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -31,7 +31,6 @@ const Multiple: React.FC = () => {
     const { name, value } = event.target;
     setformData({ ...formData, [name]: value });
   };
-
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (editingIndex === null) {
@@ -48,14 +47,24 @@ const Multiple: React.FC = () => {
     setformData(data);
     setEditingIndex(index);
   };
-
   const handleDelete = (index: number) => {
     const updatedData = [...submittedData];
     updatedData.splice(index, 1);
     setSubmittedData(updatedData);
   };
-
+  const applyFilter = () =>{
+  const filteredData =
+    filterType === null
+      ? submittedData
+      : submittedData.filter((data) => data.type === filterType);
+      setFilteredData(filteredData)
+  };
+  const clearFilter = () => {
+    setFilterType(null); 
+    setFilteredData([]); 
+  };
   return (
+    <>
     <div>
       <h2>Merchant Form</h2>
       <form onSubmit={handleSubmit}>
@@ -377,14 +386,49 @@ const Multiple: React.FC = () => {
           </tr>
         </table>
       </form>
-      <OutputTable
-        submittedData={submittedData}
-        setSubmittedData={setSubmittedData}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
     </div>
-  );
-};
-
+    <div>
+    <h3>Filter Options:</h3>
+    <label>
+      <input
+        type="radio"
+        name="filterType"
+        value="Small Business"
+        checked={filterType === "Small Business"}
+        onChange={() => setFilterType("Small Business")}
+      />
+      Small Business
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="filterType"
+        value="Enterprise"
+        checked={filterType === "Enterprise"}
+        onChange={() => setFilterType("Enterprise")}
+      />
+      Enterprise
+    </label>
+    <label>
+      <input
+        type="radio"
+        name="filterType"
+        value="Entrepreneur"
+        checked={filterType === "Entrepreneur"}
+        onChange={() => setFilterType("Entrepreneur")}
+      />
+      Entrepreneur
+    </label>
+    <button onClick={applyFilter}>Apply Filter</button>
+    <button onClick={clearFilter}>Clear Filter</button>
+  </div>
+  <OutputTable
+    submittedData={filteredData.length ? filteredData : submittedData}
+    setSubmittedData={setSubmittedData}
+    onEdit={handleEdit}
+    onDelete={handleDelete}
+  />
+  </>
+);
+  }
 export default Multiple;
