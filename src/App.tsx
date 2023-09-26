@@ -22,6 +22,7 @@ const Multiple: React.FC = () => {
   const [formData, setformData] = useState<inputData>(initialFormData);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
+  const [filterPaymentOption, setFilterPaymentOption] = useState<string | null>(null);
   const [filteredData, setFilteredData] = useState<inputData[]>([]);
   const handleInputChange = (
     event: ChangeEvent<
@@ -52,12 +53,22 @@ const Multiple: React.FC = () => {
     updatedData.splice(index, 1);
     setSubmittedData(updatedData);
   };
-  const applyFilter = () =>{
+  const handlePaymentOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFilterPaymentOption(event.target.value);
+  };
+  const applyFilter = () =>{  
   const filteredData =
     filterType === null
       ? submittedData
       : submittedData.filter((data) => data.type === filterType);
+
       setFilteredData(filteredData)
+      const filteredDataByPaymentOption =
+      filterPaymentOption === null
+        ? filteredData
+        : filteredData.filter((data) => data.paymentOptions === filterPaymentOption);
+
+    setFilteredData(filteredDataByPaymentOption);
   };
   const clearFilter = () => {
     setFilterType(null); 
@@ -421,6 +432,42 @@ const Multiple: React.FC = () => {
     </label>
     <button onClick={applyFilter}>Apply Filter</button>
     <button onClick={clearFilter}>Clear Filter</button>
+    <div>
+          <h3>Filter by Payment Option:</h3>
+          <label>
+            <input
+              type="radio"
+              name="filterPaymentOption"
+              value="Cash on Delivery"
+              checked={filterPaymentOption === "Cash on Delivery"}
+              onChange={handlePaymentOptionChange}
+            />
+            Cash on Delivery
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="filterPaymentOption"
+              value="UPI"
+              checked={filterPaymentOption === "UPI"}
+              onChange={handlePaymentOptionChange}
+            />
+            UPI
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="filterPaymentOption"
+              value="Card payment"
+              checked={filterPaymentOption === "Card payment"}
+              onChange={handlePaymentOptionChange}
+            />
+            Card payment
+          </label>
+          <button onClick={applyFilter}>Apply Filter</button>
+          <button onClick={clearFilter}>Clear Filter</button>
+        </div>
+   
   </div>
   <OutputTable
     submittedData={filteredData.length ? filteredData : submittedData}
