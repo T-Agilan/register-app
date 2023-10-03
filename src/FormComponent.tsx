@@ -7,6 +7,7 @@ interface FormComponentProps {
     handleSelectChange: (event: React.ChangeEvent<HTMLSelectElement>) => void; 
     handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   }
+
 const FormComponent : React.FC<FormComponentProps> = ({  formData,
     handleInputChange,
     handleSelectChange,
