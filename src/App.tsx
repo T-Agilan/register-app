@@ -47,23 +47,29 @@ const Multiple: React.FC = () => {
   };
   
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    console.log("hii")
     event.preventDefault();
-    
-    const updatedData = [...submittedData, formData];
-    setSubmittedData(updatedData);
-
-    // Save to local storage
-    localStorage.setItem('submittedData', JSON.stringify(updatedData));
-
-    setformData(initialFormData);
+    if (editingIndex !== null) {
+      const updatedData = [...submittedData];
+      updatedData[editingIndex] = formData;
+      setSubmittedData(updatedData);
+    } else {
+      const updatedData = [...submittedData, formData];
+      setSubmittedData(updatedData);
+    }
+    localStorage.setItem('submittedData', JSON.stringify(submittedData));
+  
     try {
-      const response = await axios.post("http://localhost:3002/", formData);
-      console.log(response.data, "success");
+      if (editingIndex !== null) {
+        await axios.put(`http://localhost:3002/${submittedData[editingIndex]._id}`, formData);
+      } else {
+        const response = await axios.post("http://localhost:3002/", formData);
+        console.log(response.data, "success");
+      }
     } catch (error) {
       console.error(error, "error");
     }
     setformData(initialFormData);
+    setEditingIndex(null);
   };
   
   const handleEdit = (data: inputData, index: number) => {
@@ -101,7 +107,7 @@ const Multiple: React.FC = () => {
   return (
     <>
       <div>
-        <h2>Merchant Fgvfhgorm</h2>
+        <h2>Merchant Form</h2>
         <form onSubmit={handleSubmit} id="form">
           <table className="table1">
             <tr>
@@ -502,6 +508,7 @@ const Multiple: React.FC = () => {
 export default Multiple;
 
 export interface inputData {
+  [x: string]: any;
   fname: string;
   mail: string;
   number: string;
