@@ -1,34 +1,13 @@
 import React from "react";
-export interface inputData {
-  fname: string;
-  mail: string;
-  number: string;
-  website: string;
-  contactName: string;
-  contactPhone: string;
-  contactMail: string;
-  notes: string;
-  type: string;
-  category: string;
-  percentage: number;
-  activeFrom: string;
-  // Logo:image;
-  criticalAccount: string;
-  paymentOptions: string;
-}
+import { inputData } from "./App"; // Import inputData interface from the file where it's defined
+
 interface PropsType {
   submittedData: inputData[];
-  setSubmittedData: React.Dispatch<React.SetStateAction<inputData[]>>;
   onEdit: (data: inputData, index: number) => void;
   onDelete: (index: number) => void;
 }
 
-const OutputTable: React.FC<PropsType> = ({
-  submittedData,
-  // setSubmittedData,
-  onEdit,
-  onDelete,
-}) => {
+const OutputTable: React.FC<PropsType> = ({ submittedData, onEdit, onDelete }) => {
   return (
     <table id="dataTable" className="table-scroll">
       <thead>
@@ -45,7 +24,6 @@ const OutputTable: React.FC<PropsType> = ({
           <th>Category</th>
           <th>Commission Percentage</th>
           <th>Active From</th>
-          {/* <th>Logo</th> */}
           <th>Critical Account</th>
           <th>Payment Options</th>
           <th>Action</th>
