@@ -1,6 +1,6 @@
 import axios from "axios";
 import "./App.css";
-import React, { useState, ChangeEvent, FormEvent,useEffect } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 // import OutputTable, { inputData } from "./outputtable";
 const initialFormData: inputData = {
   fname: "",
@@ -23,20 +23,26 @@ const Multiple: React.FC = () => {
   const [formData, setformData] = useState<inputData>(initialFormData);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [filterType, setFilterType] = useState<string | null>(null);
-  const [data, setData] = useState([]);
   const [filterPaymentOption, setFilterPaymentOption] = useState<string | null>(
     null
   );
-  
-  localStorage.setItem('submittedData', JSON.stringify(submittedData));
-
+  const [fetchedData, setFetchedData] = useState<inputData[]>([]);
   const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
+
   useEffect(() => {
-    const storedSubmittedData = localStorage.getItem('submittedData');
-    if (storedSubmittedData) {
-      setSubmittedData(JSON.parse(storedSubmittedData));
-    }
+    getData();
   }, []);
+  const getData = () => {
+    axios
+      .get("http://localhost:3002/")
+      .then((response) => {
+        setFetchedData(response.data);
+      })
+      .catch((error) => {
+        console.error(error, "error fetching data");
+      });
+  };
+
   const handleInputChange = (
     event: ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -45,42 +51,52 @@ const Multiple: React.FC = () => {
     const { name, value } = event.target;
     setformData({ ...formData, [name]: value });
   };
-  
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     if (editingIndex !== null) {
       const updatedData = [...submittedData];
       updatedData[editingIndex] = formData;
-      setSubmittedData(updatedData);
+      setSubmittedData(updatedData); // Update the local state immediately
+
+      try {
+        await axios.put(`http://localhost:3002/${formData._id}`, formData);
+        getData();
+      } catch (error) {
+        console.error(error, "error");
+      }
     } else {
-      const updatedData = [...submittedData, formData];
-      setSubmittedData(updatedData);
-    }
-    localStorage.setItem('submittedData', JSON.stringify(submittedData));
-  
-    try {
-      if (editingIndex !== null) {
-        await axios.put(`http://localhost:3002/${submittedData[editingIndex]._id}`, formData);
-      } else {
+      try {
         const response = await axios.post("http://localhost:3002/", formData);
         console.log(response.data, "success");
+        setSubmittedData([...submittedData, response.data]); // Add the new data to the local state immediately
+        getData();
+      } catch (error) {
+        console.error(error, "error");
       }
-    } catch (error) {
-      console.error(error, "error");
     }
+
     setformData(initialFormData);
     setEditingIndex(null);
   };
-  
+
   const handleEdit = (data: inputData, index: number) => {
-    setformData(data);
-    setEditingIndex(index);
+    console.log(data);
+    if (data && data._id) {
+      setformData(data);
+      setEditingIndex(index);
+    } else {
+      console.error("The data object does not have an _id property.");
+    }
   };
   const handleDelete = (index: number) => {
     const updatedData = [...submittedData];
     updatedData.splice(index, 1);
+    getData();
     setSubmittedData(updatedData);
   };
+
   const handlePaymentOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFilterPaymentOption(event.target.value);
   };
@@ -88,13 +104,17 @@ const Multiple: React.FC = () => {
     let filteredDataByType = submittedData;
 
     if (filterType !== null) {
-      filteredDataByType = submittedData.filter((data) => data.type === filterType);
+      filteredDataByType = submittedData.filter(
+        (data) => data.type === filterType
+      );
     }
 
     let filteredDataByPaymentOption = filteredDataByType;
 
     if (filterPaymentOption !== null) {
-      filteredDataByPaymentOption = filteredDataByType.filter((data) => data.paymentOptions === filterPaymentOption);
+      filteredDataByPaymentOption = filteredDataByType.filter(
+        (data) => data.paymentOptions === filterPaymentOption
+      );
     }
 
     setFilteredData(filteredDataByPaymentOption);
@@ -416,7 +436,7 @@ const Multiple: React.FC = () => {
             <tr>
               <td>
                 <button type="submit" id="Submit">
-                  Submit
+                  {editingIndex !== null ? "Update" : "Submit"}
                 </button>
                 <button type="reset" id="reset" className="re-set">
                   Reset
@@ -459,7 +479,6 @@ const Multiple: React.FC = () => {
           Entrepreneur
         </label>
         <button onClick={applyFilter}>Apply Filter</button>
-        {/* <button onClick={clearFilter}>Clear Filter</button> */}
         <div className="filter-payment">
           <h3>Filter by Payment Option:</h3>
           <label>
@@ -497,8 +516,8 @@ const Multiple: React.FC = () => {
         </div>
       </div>
       <OutputTable
-        submittedData={filteredData.length ? filteredData : submittedData}
-        setSubmittedData={setSubmittedData}
+        submittedData={filteredData.length ? filteredData : fetchedData}
+        setSubmittedData={setFetchedData}
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
