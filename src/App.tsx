@@ -44,7 +44,7 @@ const Multiple: React.FC = () => {
       console.error(error, "error fetching data");
     }
   };
-  
+
   const handleInputChange = (
     event: ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -56,18 +56,18 @@ const Multiple: React.FC = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
+
     if (editingIndex !== null) {
       try {
         await axios.put(`http://localhost:3002/${formData._id}`, formData);
-  
+
         // Update the local state by replacing the existing data at editingIndex
         setSubmittedData((prevData) => {
           const updatedData = [...prevData];
           updatedData[editingIndex] = formData;
           return updatedData;
         });
-  
+
         getData();
       } catch (error) {
         console.error(error, "error");
@@ -76,7 +76,7 @@ const Multiple: React.FC = () => {
       try {
         const response = await axios.post("http://localhost:3002/", formData);
         console.log(response.data, "success");
-  
+
         // Add the new data to the local state immediately
         setSubmittedData((prevData) => [...prevData, response.data]);
         getData();
@@ -84,14 +84,12 @@ const Multiple: React.FC = () => {
         console.error(error, "error");
       }
     }
-  
+
     setformData(initialFormData);
     setEditingIndex(null);
   };
-  
 
   const handleEdit = (data: inputData, index: number) => {
-    console.log(data);
     if (data && data._id) {
       setformData(data);
       setEditingIndex(index);
@@ -99,55 +97,46 @@ const Multiple: React.FC = () => {
       console.error("The data object does not have an _id property.");
     }
   };
-  const handleDelete = async (index: number) => {
 
-    // Check if index is valid
+  const handleDelete = async (index: number) => {
     if (index < 0 || index >= submittedData.length) {
-      console.error('Invalid index:', index);
+      console.error("Invalid index:", index);
+      getData();
       return;
     }
-    console.log('Deleting item at index:', index);
-    console.log('Filtered data before deletion:', filteredData);
-  
     // Get the item to be deleted
     const itemToDelete = submittedData[index];
     const idToDelete = itemToDelete?._id;
-    // Check if item is valid
- 
-    
-    
-  
+
     try {
-      // Check if idToDelete is defined before making the delete request
       if (idToDelete !== undefined) {
-        // Send a delete request to the server
         await axios.delete(`http://localhost:3002/${idToDelete}`);
-        console.log('Item deleted successfully.');
-  
+        console.log("Item deleted successfully.");
         // Update the local state after a successful deletion
+        setSubmittedData((prevData) => {
+          const updatedData = [...prevData];
+          updatedData.splice(index, 1);
+          return updatedData;
+        });
         setFilteredData((prevData) => {
           const updatedData = [...prevData];
           updatedData.splice(index, 1);
           return updatedData;
         });
-  
-        // If editingIndex is not null, check if the deleted index affects the editingIndex
         if (editingIndex !== null) {
           if (index === editingIndex) {
-            // Reset the form and editing index if the currently edited item is deleted
             setformData(initialFormData);
             setEditingIndex(null);
           }
         }
       } else {
-        console.error('Item id is undefined at index:', index);
+        console.error("Item id is undefined at index:", index);
       }
     } catch (error) {
-      console.error('Error deleting item:', error);
+      console.error("Error deleting item:", error);
     }
   };
-  
-  
+
   const handlePaymentOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
     setFilterPaymentOption(event.target.value);
   };
