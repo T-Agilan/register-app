@@ -4,6 +4,7 @@ import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import OutputTable from "./outputtable";
 import FormHTML from "./FormComponent";
 import FilterComponent from "./FilterComponent";
+import { Link, useNavigate } from "react-router-dom";
 
 const initialFormData: inputData = {
   fname: "",
@@ -31,6 +32,7 @@ const Multiple: React.FC = () => {
   );
   const [fetchedData, setFetchedData] = useState<inputData[]>([]);
   const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getData();
@@ -80,6 +82,7 @@ const Multiple: React.FC = () => {
         // Add the new data to the local state immediately
         setSubmittedData((prevData) => [...prevData, response.data]);
         getData();
+        navigate('/output');
       } catch (error) {
         console.error(error, "error");
       }
@@ -180,12 +183,13 @@ const Multiple: React.FC = () => {
         applyFilter={applyFilter}
         clearFilter={clearFilter}
       />
-      <OutputTable
+      {/* <OutputTable
         submittedData={filteredData.length ? filteredData : fetchedData}
         // setSubmittedData={setFetchedData}
         onEdit={handleEdit}
         onDelete={handleDelete}
-      />
+      /> */}
+        {/* <Link to="/output">Go to Output Page</Link> */}
     </>
   );
 };
