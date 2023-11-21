@@ -1,10 +1,10 @@
 import axios from "axios";
 import "./App.css";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
-import OutputTable from "./outputtable";
+// import OutputTable from "./outputtable";
 import FormHTML from "./FormComponent";
 import FilterComponent from "./FilterComponent";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const initialFormData: inputData = {
   fname: "",
@@ -33,6 +33,14 @@ const Multiple: React.FC = () => {
   const [fetchedData, setFetchedData] = useState<inputData[]>([]);
   const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
   const navigate = useNavigate();
+  const location = useLocation();
+  const editingData = location.state?.editingData;
+
+  useEffect(() => {
+    if (editingData) {
+      setformData(editingData);
+    }
+  }, [editingData]);
 
   useEffect(() => {
     getData();
@@ -69,8 +77,9 @@ const Multiple: React.FC = () => {
           updatedData[editingIndex] = formData;
           return updatedData;
         });
-
-        getData();
+        setformData(initialFormData);
+        setEditingIndex(null);
+        // getData();
       } catch (error) {
         console.error(error, "error");
       }
@@ -82,20 +91,27 @@ const Multiple: React.FC = () => {
         // Add the new data to the local state immediately
         setSubmittedData((prevData) => [...prevData, response.data]);
         getData();
-        navigate('/output');
+        navigate("/output");
       } catch (error) {
         console.error(error, "error");
       }
     }
-
-    setformData(initialFormData);
-    setEditingIndex(null);
   };
 
-  const handleEdit = (data: inputData, index: number) => {
+  const handleEdit = async (data: inputData, index: number) => {
     if (data && data._id) {
-      setformData(data);
-      setEditingIndex(index);
+      // Fetch the data from the server using the ID
+      try {
+        const response = await axios.get(`http://localhost:3002/${data._id}`);
+        const editingData = response.data;
+
+        // Set the editing data in the form
+        setformData(editingData);
+        setEditingIndex(index);
+        navigate("/", { state: { editingData } });
+      } catch (error) {
+        console.error(error, "error fetching editing data");
+      }
     } else {
       console.error("The data object does not have an _id property.");
     }
@@ -174,6 +190,7 @@ const Multiple: React.FC = () => {
         editingIndex={editingIndex}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
+        editingData={null}
       />
       <FilterComponent
         filterType={filterType}
@@ -184,12 +201,14 @@ const Multiple: React.FC = () => {
         clearFilter={clearFilter}
       />
       {/* <OutputTable
-        submittedData={filteredData.length ? filteredData : fetchedData}
+        // submittedData={filteredData.length ? filteredData : fetchedData}
         // setSubmittedData={setFetchedData}
         onEdit={handleEdit}
-        onDelete={handleDelete}
-      /> */}
-        {/* <Link to="/output">Go to Output Page</Link> */}
+        onDelete={handleDelete} submittedData={[]}      /> */}
+      {/* <OutputTable submittedData={submittedData} onEdit={handleEdit} onDelete={function (index: number): void {
+        throw new Error("Function not implemented.");
+      } } /> */}
+      {/* <Link to="/output">Go to Output Page</Link> */}
     </>
   );
 };
