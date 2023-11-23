@@ -22,16 +22,16 @@ const initialFormData: inputData = {
   criticalAccount: "",
   paymentOptions: "",
 };
-const Multiple: React.FC = () => {
+interface MultipleProps {}
+const Multiple: React.FC<MultipleProps> = () => {
   const [submittedData, setSubmittedData] = useState<inputData[]>([]);
   const [formData, setformData] = useState<inputData>(initialFormData);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [filterType, setFilterType] = useState<string | null>(null);
-  const [filterPaymentOption, setFilterPaymentOption] = useState<string | null>(
-    null
-  );
-  const [fetchedData, setFetchedData] = useState<inputData[]>([]);
-  const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
+
+  const [isEditMode, setIsEditMode] = useState(false);
+  // const [fetchedData, setFetchedData] = useState<inputData[]>([]);
+  // const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
+  // const [clearFormData, setClearFormData] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const editingData = location.state?.editingData;
@@ -39,21 +39,25 @@ const Multiple: React.FC = () => {
   useEffect(() => {
     if (editingData) {
       setformData(editingData);
+    } else {
+      // If no editing data is provided, reset the form data
+      setformData(initialFormData);
     }
   }, [editingData]);
 
-  useEffect(() => {
-    getData();
-  }, []);
-  const getData = async () => {
-    try {
-      const response = await axios.get("http://localhost:3002/");
-      setFetchedData(response.data);
-      setSubmittedData(response.data);
-    } catch (error) {
-      console.error(error, "error fetching data");
-    }
-  };
+  // useEffect(() => {
+  //   getData();
+  // }, []);
+
+  // const getData = async () => {
+  //   try {
+  //     const response = await axios.get("http://localhost:3002/");
+  //     setFetchedData(response.data);
+  //     setSubmittedData(response.data);
+  //   } catch (error) {
+  //     console.error(error, "error fetching data");
+  //   }
+  // };
 
   const handleInputChange = (
     event: ChangeEvent<
@@ -66,123 +70,60 @@ const Multiple: React.FC = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (editingIndex !== null) {
+    console.log(formData);
+    console.log(isEditMode);
+    if (formData?._id) {
       try {
-        await axios.put(`http://localhost:3002/${formData._id}`, formData);
+        // Use axios.put to update the existing data
+        const response = await axios.put(
+          `http://localhost:3002/${formData._id}`,
+          formData
+        );
+        console.log("Updated data:", response);
 
-        // Update the local state by replacing the existing data at editingIndex
+        // Update the local state with the updated data
         setSubmittedData((prevData) => {
           const updatedData = [...prevData];
-          updatedData[editingIndex] = formData;
+          const indexToUpdate = updatedData.findIndex(
+            (item) => item._id === formData._id
+          );
+          navigate("/output");
+          updatedData[indexToUpdate] = response.data;
           return updatedData;
         });
+
+        // Reset form data and exit edit mode
         setformData(initialFormData);
-        setEditingIndex(null);
-        // getData();
+        setIsEditMode(false);
       } catch (error) {
-        console.error(error, "error");
+        console.error("Error updating data:", error);
       }
     } else {
       try {
+        // Use axios.post to add new data
         const response = await axios.post("http://localhost:3002/", formData);
-        console.log(response.data, "success");
+        console.log("New data added:", response.data);
 
         // Add the new data to the local state immediately
         setSubmittedData((prevData) => [...prevData, response.data]);
-        getData();
         navigate("/output");
+        // Reset form data
+        setformData(initialFormData);
       } catch (error) {
-        console.error(error, "error");
+        console.error("Error adding new data:", error);
       }
     }
   };
 
-  const handleEdit = async (data: inputData, index: number) => {
-    if (data && data._id) {
-      // Fetch the data from the server using the ID
-      try {
-        const response = await axios.get(`http://localhost:3002/${data._id}`);
-        const editingData = response.data;
-
-        // Set the editing data in the form
-        setformData(editingData);
-        setEditingIndex(index);
-        navigate("/", { state: { editingData } });
-      } catch (error) {
-        console.error(error, "error fetching editing data");
-      }
-    } else {
-      console.error("The data object does not have an _id property.");
-    }
+  const handleEdit = (index: number) => {
+    const dataToEdit = submittedData[index];
+    setformData(dataToEdit);
+    setEditingIndex(index);
+    setIsEditMode(true);
   };
 
-  const handleDelete = async (index: number) => {
-    if (index < 0 || index >= submittedData.length) {
-      console.error("Invalid index:", index);
-      getData();
-      return;
-    }
-    // Get the item to be deleted
-    const itemToDelete = submittedData[index];
-    const idToDelete = itemToDelete?._id;
+  // setFilteredData(filteredDataByPaymentOption);
 
-    try {
-      if (idToDelete !== undefined) {
-        await axios.delete(`http://localhost:3002/${idToDelete}`);
-        console.log("Item deleted successfully.");
-        // Update the local state after a successful deletion
-        setSubmittedData((prevData) => {
-          const updatedData = [...prevData];
-          updatedData.splice(index, 1);
-          return updatedData;
-        });
-        setFilteredData((prevData) => {
-          const updatedData = [...prevData];
-          updatedData.splice(index, 1);
-          return updatedData;
-        });
-        if (editingIndex !== null) {
-          if (index === editingIndex) {
-            setformData(initialFormData);
-            setEditingIndex(null);
-          }
-        }
-      } else {
-        console.error("Item id is undefined at index:", index);
-      }
-    } catch (error) {
-      console.error("Error deleting item:", error);
-    }
-  };
-
-  const handlePaymentOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFilterPaymentOption(event.target.value);
-  };
-  const applyFilter = () => {
-    let filteredDataByType = submittedData;
-
-    if (filterType !== null) {
-      filteredDataByType = submittedData.filter(
-        (data) => data.type === filterType
-      );
-    }
-
-    let filteredDataByPaymentOption = filteredDataByType;
-
-    if (filterPaymentOption !== null) {
-      filteredDataByPaymentOption = filteredDataByType.filter(
-        (data) => data.paymentOptions === filterPaymentOption
-      );
-    }
-
-    setFilteredData(filteredDataByPaymentOption);
-  };
-  const clearFilter = () => {
-    setFilterType(null);
-    setFilterPaymentOption(null);
-    setFilteredData([]);
-  };
   return (
     <>
       <FormHTML
@@ -191,15 +132,9 @@ const Multiple: React.FC = () => {
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
         editingData={null}
+        setFormData={setformData}
       />
-      <FilterComponent
-        filterType={filterType}
-        setFilterType={setFilterType}
-        filterPaymentOption={filterPaymentOption}
-        handlePaymentOptionChange={handlePaymentOptionChange}
-        applyFilter={applyFilter}
-        clearFilter={clearFilter}
-      />
+
       {/* <OutputTable
         // submittedData={filteredData.length ? filteredData : fetchedData}
         // setSubmittedData={setFetchedData}
