@@ -8,8 +8,8 @@ const AppRouter: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Multiple />} />
         <Route path="/output" element={<OutputPage />} />
+        <Route index path="/" element={<Multiple />} />
       </Routes>
     </Router>
   );
