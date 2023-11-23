@@ -1,5 +1,6 @@
-import React from "react";
-import { inputData } from "./App"; // Import inputData interface from the file where it's defined
+import React, { ChangeEvent, useState } from "react";
+import { inputData } from "./App";
+import FilterComponent from "./FilterComponent";
 
 interface PropsType {
   submittedData: inputData[];
@@ -7,8 +8,37 @@ interface PropsType {
   onDelete: (index: number) => void;
 }
 
-const OutputTable: React.FC<PropsType> = ({ submittedData, onEdit, onDelete }) => {
+ export const OutputTable: React.FC<PropsType> = ({ submittedData, onEdit, onDelete }) => {
+  const [filterType, setFilterType] = useState<string | null>(null);
+  const [filterPaymentOption, setFilterPaymentOption] = useState<string | null>(null);
+  const handlePaymentOptionChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFilterPaymentOption(event.target.value);
+  };
+  const applyFilter = () => {
+    let filteredDataByType = submittedData;
+
+    if (filterType !== null) {
+      filteredDataByType = submittedData.filter(
+        (data) => data.type === filterType
+      );
+    }
+
+    let filteredDataByPaymentOption = filteredDataByType;
+
+    if (filterPaymentOption !== null) {
+      filteredDataByPaymentOption = filteredDataByType.filter(
+        (data) => data.paymentOptions === filterPaymentOption
+      );
+    }
+  }
+    const clearFilter = () => {
+      setFilterType(null);
+      setFilterPaymentOption(null);
+      // setFilteredData([]);
+    };
+
   return (
+    <>
     <table id="dataTable" className="table-scroll">
       <thead>
         <tr>
@@ -31,7 +61,7 @@ const OutputTable: React.FC<PropsType> = ({ submittedData, onEdit, onDelete }) =
       </thead>
       <tbody>
         {submittedData.map((data, index) => (
-          <tr key={index}>
+           <tr key={data._id}>
             <td>{data.fname}</td>
             <td>{data.mail}</td>
             <td>{data.number}</td>
@@ -54,7 +84,16 @@ const OutputTable: React.FC<PropsType> = ({ submittedData, onEdit, onDelete }) =
         ))}
       </tbody>
     </table>
+      <FilterComponent
+      filterType={filterType}
+      setFilterType={setFilterType}
+      filterPaymentOption={filterPaymentOption}
+      handlePaymentOptionChange={handlePaymentOptionChange}
+      applyFilter={applyFilter}
+      clearFilter={clearFilter}
+    />
+  </>
   );
-};
+        }
 
 export default OutputTable;
