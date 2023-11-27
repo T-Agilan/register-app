@@ -1,7 +1,6 @@
 import axios from "axios";
 import "./App.css";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
-// import OutputTable from "./outputtable";
 import FormHTML from "./FormComponent";
 import FilterComponent from "./FilterComponent";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -30,7 +29,7 @@ const Multiple: React.FC<MultipleProps> = () => {
 
   const [isEditMode, setIsEditMode] = useState(false);
   // const [fetchedData, setFetchedData] = useState<inputData[]>([]);
-  // const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
+  const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
   // const [clearFormData, setClearFormData] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,24 +39,9 @@ const Multiple: React.FC<MultipleProps> = () => {
     if (editingData) {
       setformData(editingData);
     } else {
-      // If no editing data is provided, reset the form data
       setformData(initialFormData);
     }
   }, [editingData]);
-
-  // useEffect(() => {
-  //   getData();
-  // }, []);
-
-  // const getData = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:3002/");
-  //     setFetchedData(response.data);
-  //     setSubmittedData(response.data);
-  //   } catch (error) {
-  //     console.error(error, "error fetching data");
-  //   }
-  // };
 
   const handleInputChange = (
     event: ChangeEvent<
@@ -70,8 +54,6 @@ const Multiple: React.FC<MultipleProps> = () => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log(formData);
-    console.log(isEditMode);
     if (formData?._id) {
       try {
         // Use axios.put to update the existing data
@@ -122,8 +104,6 @@ const Multiple: React.FC<MultipleProps> = () => {
     setIsEditMode(true);
   };
 
-  // setFilteredData(filteredDataByPaymentOption);
-
   return (
     <>
       <FormHTML
@@ -134,16 +114,6 @@ const Multiple: React.FC<MultipleProps> = () => {
         editingData={null}
         setFormData={setformData}
       />
-
-      {/* <OutputTable
-        // submittedData={filteredData.length ? filteredData : fetchedData}
-        // setSubmittedData={setFetchedData}
-        onEdit={handleEdit}
-        onDelete={handleDelete} submittedData={[]}      /> */}
-      {/* <OutputTable submittedData={submittedData} onEdit={handleEdit} onDelete={function (index: number): void {
-        throw new Error("Function not implemented.");
-      } } /> */}
-      {/* <Link to="/output">Go to Output Page</Link> */}
     </>
   );
 };
