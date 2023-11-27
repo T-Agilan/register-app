@@ -82,30 +82,34 @@ const OutputPage: React.FC = () => {
       if (idToDelete !== undefined) {
         await axios.delete(`http://localhost:3002/${idToDelete}`);
         console.log("Item deleted successfully.");
+
         // Update the local state after a successful deletion
         setSubmittedData((prevData) => {
           const updatedData = [...prevData];
           updatedData.splice(index, 1);
           return updatedData;
         });
+
         setFilteredData((prevData) => {
           const updatedData = [...prevData];
           updatedData.splice(index, 1);
           return updatedData;
         });
+
         if (editingIndex !== null) {
           if (index === editingIndex) {
             setformData(initialFormData);
             setEditingIndex(null);
           }
         }
+        await getData();
       } else {
         console.error("Item id is undefined at index:", index);
       }
     } catch (error) {
       console.error("Error deleting item:", error);
     }
-  };
+  }; 
 
   
   return (
