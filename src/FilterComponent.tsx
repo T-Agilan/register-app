@@ -9,15 +9,16 @@ interface FilterComponentProps {
   applyFilter: () => void;
   clearFilter: () => void;
 }
-
 const FilterComponent: React.FC<FilterComponentProps> = ({
+  
   filterType,
   setFilterType,
-  applyFilter,
   filterPaymentOption,
   handlePaymentOptionChange,
-  clearFilter
+  applyFilter,
+  clearFilter,
 }) => {
+  
   return (
     <>
       <div className="filter-type">
@@ -53,7 +54,6 @@ const FilterComponent: React.FC<FilterComponentProps> = ({
           Entrepreneur
         </label>
         <button onClick={applyFilter}>Apply Filter</button>
-        {/* <button onClick={clearFilter}>Clear Filter</button> */}
         <div className="filter-payment">
           <h3>Filter by Payment Option:</h3>
           <label>
