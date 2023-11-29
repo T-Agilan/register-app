@@ -2,8 +2,7 @@ import axios from "axios";
 import "./App.css";
 import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import FormHTML from "./FormComponent";
-import FilterComponent from "./FilterComponent";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {  useLocation, useNavigate } from "react-router-dom";
 
 const initialFormData: inputData = {
   fname: "",
@@ -18,7 +17,7 @@ const initialFormData: inputData = {
   category: "",
   percentage: 0,
   activeFrom: "",
-  criticalAccount: "",
+  criticalAccount: false,
   paymentOptions: "",
 };
 interface MultipleProps {}
@@ -26,11 +25,8 @@ const Multiple: React.FC<MultipleProps> = () => {
   const [submittedData, setSubmittedData] = useState<inputData[]>([]);
   const [formData, setformData] = useState<inputData>(initialFormData);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-
   const [isEditMode, setIsEditMode] = useState(false);
-  // const [fetchedData, setFetchedData] = useState<inputData[]>([]);
   const [filteredData, setFilteredData] = useState<inputData[]>(submittedData);
-  // const [clearFormData, setClearFormData] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const editingData = location.state?.editingData;
@@ -40,16 +36,24 @@ const Multiple: React.FC<MultipleProps> = () => {
       setformData(editingData);
     } else {
       setformData(initialFormData);
+      
+    if (setformData) {
+      setformData(initialFormData);
     }
+    }
+    
   }, [editingData]);
 
   const handleInputChange = (
-    event: ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
-    setformData({ ...formData, [name]: value });
+    const { name, value, type } = event.target;
+  
+    if (type === 'radio' && name === 'criticalAccount') {
+      setformData({ ...formData, [name]: value === "yes"});
+    } else {
+      setformData({ ...formData, [name]: type === 'checkbox' ? !formData[name] : value });
+    }
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -89,6 +93,7 @@ const Multiple: React.FC<MultipleProps> = () => {
         // Add the new data to the local state immediately
         setSubmittedData((prevData) => [...prevData, response.data]);
         navigate("/output");
+
         // Reset form data
         setformData(initialFormData);
       } catch (error) {
@@ -134,6 +139,6 @@ export interface inputData {
   percentage: number;
   activeFrom: string;
   // Logo:image;
-  criticalAccount: string;
+  criticalAccount: boolean;
   paymentOptions: string;
 }
