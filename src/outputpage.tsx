@@ -18,7 +18,7 @@ const initialFormData: inputData = {
   category: "",
   percentage: 0,
   activeFrom: "",
-  criticalAccount: "",
+  criticalAccount: false,
   paymentOptions: "",
 };
 
@@ -60,13 +60,16 @@ const OutputPage: React.FC = () => {
   const getData = async () => {
     try {
       const response = await axios.get("http://localhost:3002/");
-      setFetchedData(response.data);
-      setSubmittedData(response.data);
+      const parsedData = response.data.map((item: inputData) => ({
+        ...item,
+        criticalAccount: item.criticalAccount === true, // parse as boolean
+      }));
+      setFetchedData(parsedData);
+      setSubmittedData(parsedData);
     } catch (error) {
       console.error(error, "error fetching data");
     }
   };
-
   const handleDelete = async (index: number) => {
     console.log("delete is clicked")
     if (index < 0 || index >= submittedData.length) {
