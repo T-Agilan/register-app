@@ -94,7 +94,7 @@ export const OutputTable: React.FC<PropsType> = ({
                 <td>{data.category}</td>
                 <td>{data.percentage}</td>
                 <td>{data.activeFrom}</td>
-                <td>{data.criticalAccount}</td>
+                <td>{data.criticalAccount ? 'YES' : 'NO'}</td>
                 <td>{data.paymentOptions}</td>
                 <td>
                   <button onClick={() => onEdit(data, index)}>Edit</button>
@@ -117,7 +117,7 @@ export const OutputTable: React.FC<PropsType> = ({
                 <td>{data.category}</td>
                 <td>{data.percentage}</td>
                 <td>{data.activeFrom}</td>
-                <td>{data.criticalAccount}</td>
+                <td>{data.criticalAccount ? 'YES' : 'NO'}</td>
                 <td>{data.paymentOptions}</td>
                 <td>
                   <button onClick={() => onEdit(data, index)}>Edit</button>
