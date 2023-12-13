@@ -62,7 +62,7 @@ const Multiple: React.FC<MultipleProps> = () => {
       try {
         // Use axios.put to update the existing data
         const response = await axios.put(
-          `http://localhost:3002/${formData._id}`,
+          `http://localhost:3003/merchant/${formData._id}`,
           formData
         );
         console.log("Updated data:", response);
@@ -87,7 +87,7 @@ const Multiple: React.FC<MultipleProps> = () => {
     } else {
       try {
         // Use axios.post to add new data
-        const response = await axios.post("http://localhost:3002/", formData);
+        const response = await axios.post("http://localhost:3003/merchant", formData);
         console.log("New data added:", response.data);
 
         // Add the new data to the local state immediately
