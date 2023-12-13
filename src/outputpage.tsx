@@ -34,7 +34,7 @@ const OutputPage: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:3002/");
+        const response = await axios.get("http://localhost:3003/merchant");
         setData(response.data);
       } catch (error) {
         console.error(error, "error fetching data");
@@ -59,7 +59,7 @@ const OutputPage: React.FC = () => {
 
   const getData = async () => {
     try {
-      const response = await axios.get("http://localhost:3002/");
+      const response = await axios.get("http://localhost:3003/merchant");
       const parsedData = response.data.map((item: inputData) => ({
         ...item,
         criticalAccount: item.criticalAccount === true, // parse as boolean
@@ -83,7 +83,7 @@ const OutputPage: React.FC = () => {
 
     try {
       if (idToDelete !== undefined) {
-        await axios.delete(`http://localhost:3002/${idToDelete}`);
+        await axios.delete(`http://localhost:3003/merchant/${idToDelete}`);
         console.log("Item deleted successfully.");
 
         // Update the local state after a successful deletion
